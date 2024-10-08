@@ -30,9 +30,7 @@ fn connect_database_with(config: DatabaseConfig) -> PgPool {
 }
 
 async fn health_check_db(State(db): State<PgPool>) -> StatusCode {
-    let row = sqlx::query("SELECT 1")
-        .fetch_one(&db)
-        .await;
+    let row = sqlx::query("SELECT 1").fetch_one(&db).await;
     match row {
         Ok(_) => StatusCode::OK,
         Err(_) => StatusCode::INTERNAL_SERVER_ERROR,
@@ -54,11 +52,10 @@ async fn main() -> Result<()> {
     };
     let pool = connect_database_with(database_config);
 
-
-    let app  = Router::new()
-    .route("/health", get(health_check))
-    .route("/health_db", get(health_check_db))
-    .with_state(pool);
+    let app = Router::new()
+        .route("/health", get(health_check))
+        .route("/health_db", get(health_check_db))
+        .with_state(pool);
 
     let addr = SocketAddr::new(Ipv4Addr::LOCALHOST.into(), 8080);
     let listener = TcpListener::bind(addr).await?;
